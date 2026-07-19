@@ -354,11 +354,15 @@ async function loadClients() {
       email: cellVal(r,6),
       instagram: cellVal(r,7),
       site_atual: cellVal(r,8),
-      endereco: cellVal(r,9),
-      horario_funcionamento: cellVal(r,10),
-      whatsapp: cellVal(r,11),
-      forma_pagamento: cellVal(r,12),
-      concorrentes: cellVal(r,13),
+      concorrente1: cellVal(r,9),
+      concorrente2: cellVal(r,10),
+      referencia_nacional: cellVal(r,11),
+      ferramenta_venda: cellVal(r,12),
+      ferramenta_link: cellVal(r,13),
+      endereco: cellVal(r,14),
+      horario_funcionamento: cellVal(r,15),
+      whatsapp: cellVal(r,16),
+      forma_pagamento: cellVal(r,17),
     })).filter(c => c.razao_social.trim() !== '');
 
     allClients.reverse(); // mais recentes primeiro
@@ -411,11 +415,15 @@ function openModal(idx) {
     ['E-mail', c.email],
     ['Instagram', c.instagram],
     ['Site', c.site_atual || 'Não informado'],
+    ['Concorrente Local 1', c.concorrente1],
+    ['Concorrente Local 2', c.concorrente2],
+    ['Referência Nacional', c.referencia_nacional],
+    ['Ferramenta de Venda', c.ferramenta_venda],
+    ['Link da Ferramenta', c.ferramenta_link || 'Não tem'],
     ['Endereço', c.endereco],
     ['Horário de Funcionamento', c.horario_funcionamento],
     ['WhatsApp Business', c.whatsapp],
     ['Forma de Pagamento', c.forma_pagamento],
-    ['Concorrentes', c.concorrentes],
     ['Data de Envio', c.data_envio],
   ];
 
