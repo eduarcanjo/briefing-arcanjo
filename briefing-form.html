@@ -274,6 +274,42 @@
         <input type="text" id="site_atual" placeholder="www.seusite.com.br (opcional)">
       </div>
 
+      <div class="field" id="f_concorrente1">
+        <label>Concorrente Local 1</label>
+        <input type="text" id="concorrente1" placeholder="Nome do principal concorrente na sua cidade ou região" required>
+        <div class="field-error">Preencha o primeiro concorrente.</div>
+      </div>
+
+      <div class="field" id="f_concorrente2">
+        <label>Concorrente Local 2</label>
+        <input type="text" id="concorrente2" placeholder="Nome do segundo concorrente na sua cidade ou região" required>
+        <div class="field-error">Preencha o segundo concorrente.</div>
+      </div>
+
+      <div class="field" id="f_referencia_nacional">
+        <label>Referência Nacional</label>
+        <input type="text" id="referencia_nacional" placeholder="Uma empresa que está onde você quer chegar e com a qual você se identifica" required>
+        <div class="field-error">Preencha a referência nacional.</div>
+      </div>
+
+      <div class="field" id="f_ferramenta_venda">
+        <label>Você tem alguma ferramenta de venda como cardápio ou catálogo?</label>
+        <div style="display:flex;gap:12px;margin-bottom:10px;">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;color:var(--text);font-weight:400;text-transform:none;letter-spacing:0;">
+            <input type="radio" name="ferramenta_venda" value="sim" onclick="toggleFerramentaLink(true)" style="accent-color:var(--dourado);width:16px;height:16px;">
+            Sim
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;color:var(--text);font-weight:400;text-transform:none;letter-spacing:0;">
+            <input type="radio" name="ferramenta_venda" value="nao" onclick="toggleFerramentaLink(false)" style="accent-color:var(--dourado);width:16px;height:16px;">
+            Não
+          </label>
+        </div>
+        <div id="ferramenta_link_wrap" style="display:none;">
+          <input type="text" id="ferramenta_link" placeholder="Cole aqui o link do seu cardápio ou catálogo">
+        </div>
+        <div class="field-error">Selecione uma opção.</div>
+      </div>
+
       <div class="field" id="f_endereco">
         <label>Endereço da Empresa (com CEP)</label>
         <input type="text" id="endereco" placeholder="Rua, número, bairro, cidade - CEP" required>
@@ -302,12 +338,6 @@
         <div class="field-error">Selecione a forma de pagamento.</div>
       </div>
 
-      <div class="field" id="f_concorrentes">
-        <label>Liste Dois Principais Concorrentes</label>
-        <input type="text" id="concorrentes" placeholder="Ex: Empresa A, Empresa B" required>
-        <div class="field-error">Liste pelo menos dois concorrentes.</div>
-      </div>
-
       <button type="button" class="btn-submit" id="submitBtn" onclick="submitForm()">Enviar Briefing</button>
     </form>
   </div>
@@ -332,16 +362,26 @@ const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzpLK4Mtp9BRB9W2auj5
 
 const fields = [
   'razao_social', 'cnpj', 'nome_completo', 'cpf', 'email', 'instagram', 'site_atual',
-  'endereco', 'horario_funcionamento', 'whatsapp', 'forma_pagamento', 'concorrentes'
+  'endereco', 'horario_funcionamento', 'whatsapp', 'forma_pagamento',
+  'concorrente1', 'concorrente2', 'referencia_nacional'
 ];
 
 const requiredFields = fields.filter(f => f !== 'site_atual');
+
+function toggleFerramentaLink(show) {
+  const wrap = document.getElementById('ferramenta_link_wrap');
+  const input = document.getElementById('ferramenta_link');
+  wrap.style.display = show ? 'block' : 'none';
+  if (!show) input.value = '';
+  document.getElementById('f_ferramenta_venda').classList.remove('invalid');
+}
 
 function validateForm() {
   let valid = true;
   requiredFields.forEach(id => {
     const el = document.getElementById(id);
     const wrap = document.getElementById('f_' + id);
+    if (!el || !wrap) return;
     if (!el.value.trim()) {
       wrap.classList.add('invalid');
       valid = false;
@@ -349,6 +389,17 @@ function validateForm() {
       wrap.classList.remove('invalid');
     }
   });
+
+  // Valida ferramenta de venda
+  const ferramentaChecked = document.querySelector('input[name="ferramenta_venda"]:checked');
+  const fWrap = document.getElementById('f_ferramenta_venda');
+  if (!ferramentaChecked) {
+    fWrap.classList.add('invalid');
+    valid = false;
+  } else {
+    fWrap.classList.remove('invalid');
+  }
+
   return valid;
 }
 
@@ -356,7 +407,17 @@ async function submitForm() {
   if (!validateForm()) return;
 
   const data = {};
-  fields.forEach(id => { data[id] = document.getElementById(id).value.trim(); });
+  fields.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) data[id] = el.value.trim();
+  });
+
+  // Ferramenta de venda
+  const ferramentaChecked = document.querySelector('input[name="ferramenta_venda"]:checked');
+  data.ferramenta_venda = ferramentaChecked ? ferramentaChecked.value : '';
+  data.ferramenta_link = ferramentaChecked && ferramentaChecked.value === 'sim'
+    ? (document.getElementById('ferramenta_link').value.trim() || 'Não informado')
+    : 'Não tem';
 
   document.getElementById('formCard').classList.add('hidden');
   document.getElementById('loadingOverlay').classList.add('active');
